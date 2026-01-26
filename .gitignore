@@ -220,3 +220,18 @@ __marimo__/
 BasicData/
 *.csv
 *.dat
+
+# 画像ファイルを除外
+*.png
+
+# Pythonの一時ファイルやデータファイルを除外
+*.pkl
+*.npy
+*.json
+
+# Wordファイル（原稿などは別途管理が推奨）
+*.docx
+
+# OS特有のファイル
+Thumbs.db
+.DS_Store
