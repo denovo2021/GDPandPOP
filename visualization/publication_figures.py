@@ -3,13 +3,22 @@
 # Target: Academic journal (LaTeX/PDF compatible)
 # -----------------------------------------------------------------------------
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import numpy as np
 import pandas as pd
 import arviz as az
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
-from pathlib import Path
 import json
+
+from config import (
+    PATH_MERGED, PATH_MERGED_AGE, PATH_KNOTS, PATH_SCALE_JSON,
+    PATH_MODEL_SIMPLE, PATH_MODEL_REGIONAL, PATH_MODEL_HIERARCHICAL,
+    DIR_FIGURES, DIR_TABLES
+)
 
 # =============================================================================
 # Publication-quality matplotlib settings
@@ -56,24 +65,22 @@ def set_publication_style():
 set_publication_style()
 
 # =============================================================================
-# Paths
+# Paths (imported from config.py)
 # =============================================================================
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-PATH_DATA = PROJ / "merged_age.csv"
-PATH_DATA_RAW = PROJ / "merged.csv"
-PATH_KNOTS = PROJ / "rcs_knots_hier.npy"
-PATH_SCALE = PROJ / "scale_rcs_age_v3.json"
+PATH_DATA = PATH_MERGED_AGE
+PATH_DATA_RAW = PATH_MERGED
+# PATH_KNOTS, PATH_SCALE_JSON imported from config
 
-# Model files
-PATH_SIMPLE = PROJ / "simple_model_with_rcs.nc"
-PATH_REGIONAL = PROJ / "regional_model_with_rcs.nc"
-PATH_HIERARCHICAL = PROJ / "hierarchical_model_with_rcs_age_v3.nc"
+# Model files (imported from config)
+PATH_SIMPLE = PATH_MODEL_SIMPLE
+PATH_REGIONAL = PATH_MODEL_REGIONAL
+PATH_HIERARCHICAL = PATH_MODEL_HIERARCHICAL
 
-# Output paths
-OUT_FIG = PROJ / "figures"
-OUT_TABLE = PROJ / "tables"
-OUT_FIG.mkdir(exist_ok=True)
-OUT_TABLE.mkdir(exist_ok=True)
+# Output paths (imported from config)
+OUT_FIG = DIR_FIGURES
+OUT_TABLE = DIR_TABLES
+OUT_FIG.mkdir(exist_ok=True, parents=True)
+OUT_TABLE.mkdir(exist_ok=True, parents=True)
 
 # =============================================================================
 # Helper: RCS design matrix

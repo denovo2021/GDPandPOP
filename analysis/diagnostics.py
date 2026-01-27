@@ -1,22 +1,28 @@
-# =============================== calculation_rcs.py =============================
+# diagnostics.py
+# =============================== Key Metrics for Manuscript =============================
 """
 Key summary metrics for the manuscript (RCS model version), without importing models
 or writing NetCDF files. We reconstruct pointwise log-likelihood from posterior
 draws + raw data, then run LOO/WAIC. This avoids Windows file locks entirely.
 
 1. MAE of the hierarchical RCS model (log10 scale).
-2. ΔELPD (RCS – linear) with SE; LOO preferred, WAIC fallback.
-3. Median world-GDP growth 2025→2040 (95% HDI) pooled across UN scenarios.
+2. DELPD (RCS - linear) with SE; LOO preferred, WAIC fallback.
+3. Median world-GDP growth 2025-2040 (95% HDI) pooled across UN scenarios.
 5. Share of forecast variance attributable to between-scenario heterogeneity.
-6. Marginal R² explained by population (linear + RCS terms).
+6. Marginal R^2 explained by population (linear + RCS terms).
 """
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import os
 import numpy as np
 import pandas as pd
 import arviz as az
-from pathlib import Path
 from scipy.special import gammaln, logsumexp
+
+from config import PATH_MERGED, PATH_KNOTS, PATH_MODEL_HIERARCHICAL, DIR_OUTPUT
 
 # ------------------------------- config ----------------------------------------
 THIN_RCS  = 10     # posterior thinning (RCS)
@@ -27,18 +33,15 @@ OBS_CHUNK = 1000   # observation chunk size for log-likelihood
 os.environ.setdefault("HDF5_USE_FILE_LOCKING", "FALSE")
 
 # ------------------------------- paths ----------------------------------------
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-PATH_POST_RCS     = ROOT / "hierarchical_model_with_rcs.nc"
-PATH_POST_LINEAR  = ROOT / "hierarchical_model_linear.nc"
-PATH_SCENARIO     = ROOT / "gdp_predictions_scenarios_rcs.csv"
-PATH_MERGED       = ROOT / "merged.csv"
-PATH_KNOTS        = ROOT / "rcs_knots_hier.npy"  # saved during RCS fit
+PATH_POST_RCS     = PATH_MODEL_HIERARCHICAL
+PATH_POST_LINEAR  = DIR_OUTPUT / "hierarchical_model_linear.nc"
+PATH_SCENARIO     = DIR_OUTPUT / "gdp_predictions_scenarios_rcs.csv"
 
 HAS_LINEAR = PATH_POST_LINEAR.exists()
 if not HAS_LINEAR:
-    print(f"[warn] Linear model file not found: {PATH_POST_LINEAR} — ΔELPD will be skipped.")
+    print(f"[warn] Linear model file not found: {PATH_POST_LINEAR} - DELPD will be skipped.")
 
-# ---- global centering mean (use the same μ everywhere) -----------------------
+# ---- global centering mean (use the same mean everywhere) -----------------------
 df_all_for_mu = pd.read_csv(PATH_MERGED, index_col=0)
 if "Log_Population" not in df_all_for_mu.columns:
     df_all_for_mu["Log_Population"] = np.log10(df_all_for_mu["Population"])

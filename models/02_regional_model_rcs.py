@@ -1,4 +1,4 @@
-# regional_model_with_rcs.py
+# 02_regional_model_rcs.py
 # Layer 2: Partial Pooling by Region with Restricted Cubic Splines
 # ---------------------------------------------------------------------
 # Model: log(GDP) = alpha_r + beta_r * x_c + sum_j(theta_rj * rcs_j(x_c)) + epsilon
@@ -12,6 +12,10 @@
 # This allows regions with less data to borrow strength from other regions.
 # ---------------------------------------------------------------------
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import numpy as np
 import pandas as pd
 import pymc as pm
@@ -20,13 +24,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pytensor.tensor as pt
 
+from config import PATH_MERGED, PATH_MODEL_SIMPLE, PATH_MODEL_REGIONAL, DIR_CACHE, DIR_FIGURES
+
 az.style.use("arviz-whitegrid"); az.rcParams["stats.ci_prob"] = 0.95
 sns.set()
 print(f"Running on PyMC v{pm.__version__}")
 
 # ------------------------------- 1) Data --------------------------------
-ROOT = r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP"
-df = (pd.read_csv(f"{ROOT}/merged.csv", header=0, index_col=0)
+df = (pd.read_csv(PATH_MERGED, header=0, index_col=0)
         .dropna(subset=["Region", "Population", "GDP"]))
 
 # log10 variables (use existing columns if already present)
@@ -60,17 +65,17 @@ def rcs_design(x_in: np.ndarray, knots: np.ndarray) -> np.ndarray:
         cols.append(term)
     return np.column_stack(cols) if cols else np.zeros((x_in.size, 0))
 
-# choose 4 knots (5th, 35th, 65th, 95th percentiles) → (K-2)=2 spline cols
+# choose 4 knots (5th, 35th, 65th, 95th percentiles) -> (K-2)=2 spline cols
 knots = np.quantile(x, [0.05, 0.35, 0.65, 0.95])
 Z = rcs_design(x, knots)             # shape (N, m)
 m = Z.shape[1]
 # Save knots for reuse in forecasting
-np.save(f"{ROOT}/rcs_knots_region.npy", knots)
+np.save(DIR_CACHE / "rcs_knots_region.npy", knots)
 
 # ------------------ 3) Prior info from simple model (optional) ----------
-# If you trained the simple (global) model, use its α, β as weak centers.
+# If you trained the simple (global) model, use its alpha, beta as weak centers.
 try:
-    idata_simple = az.from_netcdf(f"{ROOT}/simple_model_with_rcs.nc")
+    idata_simple = az.from_netcdf(PATH_MODEL_SIMPLE)
     summ_simple  = az.summary(idata_simple, var_names=["alpha", "beta"], hdi_prob=0.95)
     alpha_mean, alpha_sd = float(summ_simple.loc["alpha", "mean"]), float(summ_simple.loc["alpha", "sd"])
     beta_mean,  beta_sd  = float(summ_simple.loc["beta",  "mean"]), float(summ_simple.loc["beta",  "sd"])
@@ -116,7 +121,7 @@ with pm.Model(coords=coords) as regional_model_with_rcs:
     # ===== Observation model =====
     # Student-t likelihood for robustness to outliers
     sigma = pm.HalfStudentT("sigma", nu=3, sigma=0.3)
-    nu_raw = pm.Gamma("nu_raw", alpha=2.0, beta=0.2)  # mean ≈ 10
+    nu_raw = pm.Gamma("nu_raw", alpha=2.0, beta=0.2)  # mean ~ 10
     nu = pm.Deterministic("nu", pt.clip(nu_raw + 1.0, 2.0, 30.0))
 
     # Linear predictor
@@ -137,7 +142,7 @@ with pm.Model(coords=coords) as regional_model_with_rcs:
 #   - draws: 4,000 is sufficient for stable posterior estimates
 #   - tune: 2,000 is usually enough for adaptation
 #   - target_accept: 0.95 balances accuracy and speed (0.99 is overly conservative)
-#   - Total effective samples: 4 chains × 4,000 = 16,000 (plenty for inference)
+#   - Total effective samples: 4 chains x 4,000 = 16,000 (plenty for inference)
 
 if __name__ == '__main__':
     with regional_model_with_rcs:
@@ -148,10 +153,10 @@ if __name__ == '__main__':
         )
 
 # ----------------------------- 5) Save / Load ---------------------------
-    az.to_netcdf(idata_regional_rcs, f"{ROOT}/regional_model_with_rcs.nc")
+    az.to_netcdf(idata_regional_rcs, PATH_MODEL_REGIONAL)
 
 # Load saved results (for analysis without re-running sampling)
-idata_regional_rcs = az.from_netcdf(f"{ROOT}/regional_model_with_rcs.nc")
+idata_regional_rcs = az.from_netcdf(PATH_MODEL_REGIONAL)
 
 # ----------------------------- 6) Summary / Plots -----------------------
 # Include hyperparameters in summary
@@ -161,7 +166,7 @@ if m > 0:
     var_list.extend(["sigma_theta", "theta_region"])
 
 az.plot_posterior(idata_regional_rcs, var_names=var_list)
-plt.savefig(f"{ROOT}/regional_model_with_rcs_posterior.png", dpi=300)
+plt.savefig(DIR_FIGURES / "regional_model_rcs_posterior.png", dpi=300)
 
 print(az.summary(idata_regional_rcs, var_names=var_list, hdi_prob=0.95))
 
@@ -202,6 +207,5 @@ plt.xlabel("Centered log10 population")
 plt.ylabel("log10 GDP")
 plt.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
 plt.tight_layout()
-plt.savefig(f"{ROOT}/regional_model_with_rcs.png", dpi=600)
+plt.savefig(DIR_FIGURES / "regional_model_rcs.png", dpi=600)
 # plt.show()
-

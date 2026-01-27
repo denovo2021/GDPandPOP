@@ -1,4 +1,4 @@
-# simple_model_with_rcs.py
+# 01_simple_model_rcs.py
 # Layer 1: Pooled model with Restricted Cubic Splines (no hierarchy)
 # -------------------------------------------------------------------
 # Model: log(GDP) = alpha + beta * x_c + sum_j(theta_j * rcs_j(x_c)) + epsilon
@@ -7,6 +7,10 @@
 # This is the baseline model treating all countries as exchangeable
 # (single global intercept and slope, no grouping structure)
 # -------------------------------------------------------------------
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pandas as pd
 import numpy as np
@@ -20,11 +24,13 @@ import pymc as pm
 import pytensor.tensor as pt
 from arviz.stats import hdi
 
+from config import PATH_MERGED, PATH_MODEL_SIMPLE, PATH_FIG_SIMPLE_MODEL
+
 print(f"Running on PyMC v{pm.__version__}")
 
 # ----------------------------- data ---------------------------------
 df = pd.read_csv(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv",
+    PATH_MERGED,
     header=0, index_col=0
 ).dropna(subset=["Region", "Population", "GDP"])
 
@@ -36,7 +42,7 @@ df["Log_Population_c"] = df["Log_Population"] - df["Log_Population"].mean()
 # --------------------- restricted cubic spline ----------------------
 # natural cubic spline basis: linear tails outside knot range
 x = df["Log_Population_c"].values
-knots = np.quantile(x, [0.05, 0.35, 0.65, 0.95])  # 4 knots → (K-2)=2 spline bases
+knots = np.quantile(x, [0.05, 0.35, 0.65, 0.95])  # 4 knots -> (K-2)=2 spline bases
 
 def rcs_design(x_in, k):
     """Harrell's restricted cubic spline with linear tails."""
@@ -81,7 +87,7 @@ with pm.Model() as simple_model_with_rcs:
     sigma = pm.HalfStudentT("sigma", nu=3, sigma=0.3)
 
     # Degrees of freedom for StudentT likelihood (robust to outliers)
-    nu_raw = pm.Gamma("nu_raw", alpha=2.0, beta=0.2)  # mean ≈ 10
+    nu_raw = pm.Gamma("nu_raw", alpha=2.0, beta=0.2)  # mean ~ 10
     nu = pm.Deterministic("nu", pm.math.clip(nu_raw + 1, 2.0, 30.0))
 
     # Linear predictor: alpha + beta*x + sum_j(theta_j * rcs_j(x))
@@ -113,13 +119,11 @@ if __name__ == '__main__':
 # ------------------------------ save/load ----------------------------
     az.to_netcdf(
         idata_simple_with_rcs,
-        "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model_with_rcs.nc"
+        PATH_MODEL_SIMPLE
     )
 
 # Load saved results (for analysis without re-running sampling)
-idata_simple_with_rcs = az.from_netcdf(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model_with_rcs.nc"
-)
+idata_simple_with_rcs = az.from_netcdf(PATH_MODEL_SIMPLE)
 
 # ------------------------------ posterior plots ----------------------
 az.plot_posterior(idata_simple_with_rcs, var_names=["alpha", "beta", "sigma", "nu", "theta", "R2"])
@@ -170,4 +174,4 @@ ax.set_xlabel("Centered log10 population")
 ax.set_ylabel("log10 GDP")
 ax.legend(frameon=False)
 fig.tight_layout()
-fig.savefig("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model_with_rcs.png", dpi=600)
+fig.savefig(PATH_FIG_SIMPLE_MODEL, dpi=600)

@@ -1,18 +1,25 @@
-# fig2_gdp_fan_v5_aggregated.py
+# fig_gdp_fan_chart.py
+# Global GDP Fan Chart visualization
+# -------------------------------------------------------------------
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
-from pathlib import Path
 import seaborn as sns
+
+from config import DIR_OUTPUT, DIR_FIGURES
 
 sns.set_context("paper", font_scale=1.2)
 sns.set_style("whitegrid")
 plt.rcParams['font.family'] = 'sans-serif'
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-CSV_PATH = ROOT / "gdp_world_fan_v5_full_uncertainty.csv"
+CSV_PATH = DIR_OUTPUT / "gdp_world_fan_v5_full_uncertainty.csv"
 
-# ファイル読み込み
+# Load file
 try:
     df = pd.read_csv(CSV_PATH)
     if df.empty:
@@ -21,7 +28,7 @@ except Exception as e:
     print(f"Error loading CSV: {e}")
     exit()
 
-# Trillionsに変換
+# Convert to Trillions
 cols = ["Median", "p95_lo", "p95_hi", "p80_lo", "p80_hi", "p50_lo", "p50_hi"]
 for c in cols:
     if c in df.columns:
@@ -43,7 +50,7 @@ ax.set_xlim(2025, 2100)
 ax.legend(loc="upper left", frameon=False, fontsize=10)
 
 plt.tight_layout()
-SAVE_PATH = ROOT / "Figure2_Global_GDP_Fan_v5_Final.png"
+SAVE_PATH = DIR_FIGURES / "Figure2_Global_GDP_Fan_v5_Final.png"
 fig.savefig(SAVE_PATH, dpi=600)
-print(f"✓ Saved Figure 2 to {SAVE_PATH}")
+print(f"Saved Figure 2 to {SAVE_PATH}")
 plt.show()

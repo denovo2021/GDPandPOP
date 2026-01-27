@@ -1,26 +1,37 @@
-# fig_global_u5mr_fan.py — robust, pivot + quantiles (population-weighted)
-import numpy as np, pandas as pd, matplotlib.pyplot as plt
+# fig_u5mr_projection.py
+# Global U5MR Fan Chart (population-weighted)
+# -------------------------------------------------------------------
+
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# 1) load forecasts and population cache (aligned to scenarios)
-u5  = pd.read_csv(ROOT/"u5mr_predictions_scenarios_rcs.csv",
+from config import DIR_OUTPUT, DIR_FIGURES, PATH_POP_PREDICTIONS
+
+# Input files
+U5MR_PRED = DIR_OUTPUT / "u5mr_predictions_scenarios_rcs.csv"
+
+# 1) Load forecasts and population cache (aligned to scenarios)
+u5  = pd.read_csv(U5MR_PRED,
                   usecols=["ISO3","Year","Scenario","U5MR_median"])
-pop = pd.read_csv(ROOT/"pop_predictions_scenarios.csv",
+pop = pd.read_csv(PATH_POP_PREDICTIONS,
                   usecols=["ISO3","Year","Scenario","Population"])
 
-# force numeric
+# Force numeric
 for d, cols in [(u5, ["Year","U5MR_median"]), (pop, ["Year","Population"])]:
     for c in cols: d[c] = pd.to_numeric(d[c], errors="coerce")
 u5 = u5.dropna(subset=["Year","U5MR_median"])
 pop = pop.dropna(subset=["Year","Population"])
 
-# 2) population-weighted world U5MR per scenario-year
+# 2) Population-weighted world U5MR per scenario-year
 u5w = (u5.merge(pop, on=["ISO3","Year","Scenario"], how="left")
          .dropna(subset=["Population"]))
 
-# compute weighted average without groupby.apply
+# Compute weighted average without groupby.apply
 wx = (u5w.assign(wx = u5w["U5MR_median"] * u5w["Population"])
          .groupby(["Year","Scenario"], as_index=False)["wx"].sum())
 W  = (u5w.groupby(["Year","Scenario"], as_index=False)["Population"].sum()
@@ -30,7 +41,7 @@ world = (wx.merge(W, on=["Year","Scenario"])
            .loc[:, ["Year","Scenario","U5MR_world"]]
            .sort_values(["Year","Scenario"]))
 
-# 3) pivot to wide and compute quantiles across scenarios
+# 3) Pivot to wide and compute quantiles across scenarios
 wide = world.pivot(index="Year", columns="Scenario", values="U5MR_world").sort_index()
 arr  = wide.to_numpy()
 
@@ -45,7 +56,7 @@ fan = pd.DataFrame({
     "p95_hi":   np.nanquantile(arr, 0.975, axis=1),
 })
 
-# 4) plot
+# 4) Plot
 fig, ax = plt.subplots(figsize=(6.2, 4))
 ax.plot(fan["Year"], fan["Median"], lw=2, label="Median")
 ax.fill_between(fan["Year"], fan["p95_lo"], fan["p95_hi"], alpha=0.15, label="95%")
@@ -54,5 +65,6 @@ ax.fill_between(fan["Year"], fan["p50_lo"], fan["p50_hi"], alpha=0.35, label="50
 ax.set_xlim(int(fan["Year"].min()), int(fan["Year"].max()))
 ax.set_xlabel("Year"); ax.set_ylabel("Global U5MR (per 1,000 live births)")
 ax.legend(frameon=False); fig.tight_layout()
-fig.savefig(ROOT/"fig_global_u5mr_fan.png", dpi=600)
-print("✓ fig_global_u5mr_fan.png")
+SAVE_PATH = DIR_FIGURES / "fig_global_u5mr_fan.png"
+fig.savefig(SAVE_PATH, dpi=600)
+print(f"Saved {SAVE_PATH}")

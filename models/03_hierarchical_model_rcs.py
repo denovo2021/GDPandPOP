@@ -1,4 +1,4 @@
-# hierarchical_model_with_rcs_age_v3.py
+# 03_hierarchical_model_rcs.py
 # Layer 3 (Final): Full Hierarchical Model with RCS + Demographic Age Effects
 # -----------------------------------------------------------------------------
 """
@@ -20,14 +20,17 @@ Full hierarchical GDP model with:
       alpha_country ~ Normal(alpha_region, sigma_alpha_country)  <- non-centered
 
 Key technical choices:
-  • x := (log10(Pop) - μ) / SD; global RCS basis orthogonalized to [1, x]
-  • Non-centered parameterization for hierarchical parameters (better sampling)
-  • Δt orthogonalized to [1, x, RCS] + clipping (±2)
-  • Demographic deltas standardized for comparability
-  • Student-t likelihood with ν=12 (robust to outliers)
+  - x := (log10(Pop) - mu) / SD; global RCS basis orthogonalized to [1, x]
+  - Non-centered parameterization for hierarchical parameters (better sampling)
+  - dt orthogonalized to [1, x, RCS] + clipping (+/-2)
+  - Demographic deltas standardized for comparability
+  - Student-t likelihood with nu=12 (robust to outliers)
 """
 
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import json, warnings
 import numpy as np
 import pandas as pd
@@ -35,15 +38,10 @@ import pymc as pm
 import pytensor.tensor as pt
 import arviz as az
 
-# -----------------------
-# Paths
-# -----------------------
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-PATH_MERGED      = PROJ / "merged_age.csv"
-PATH_MERGED_RAW  = PROJ / "merged.csv"
-PATH_KNOTS       = PROJ / "rcs_knots_hier.npy"
-PATH_OUT         = PROJ / "hierarchical_model_with_rcs_age_v3.nc"
-PATH_SCALE_JSON  = PROJ / "scale_rcs_age_v3.json"
+from config import (
+    PATH_MERGED, PATH_MERGED_AGE, PATH_MODEL_HIERARCHICAL,
+    PATH_KNOTS, PATH_SCALE_JSON
+)
 
 # -----------------------
 # Helper: RCS design
@@ -62,11 +60,11 @@ def rcs_design(x: np.ndarray, knots: np.ndarray) -> np.ndarray:
     return np.column_stack(cols)
 
 # ============ Data loading ============
-df = pd.read_csv(PATH_MERGED)
+df = pd.read_csv(PATH_MERGED_AGE)
 df = df.dropna(subset=["ISO3","Country Name","Region","Year","GDP","Population","WAshare","OldDep"]).copy()
 df["Year"] = df["Year"].astype(int)
 
-df_mu = pd.read_csv(PATH_MERGED_RAW, index_col=0)
+df_mu = pd.read_csv(PATH_MERGED, index_col=0)
 if "Log_Population" not in df_mu.columns:
     df_mu["Log_Population"] = np.log10(df_mu["Population"])
 MU_GLOBAL = float(df_mu["Log_Population"].mean())
@@ -76,7 +74,7 @@ if "Log_Population" not in df.columns:
 if "Log_GDP" not in df.columns:
     df["Log_GDP"] = np.log10(df["GDP"])
 
-# Base anchors per ISO3 (≤2023 else last)
+# Base anchors per ISO3 (<=2023 else last)
 base = (df.sort_values(["ISO3","Year"])
           .groupby("ISO3", as_index=False)
           .apply(lambda g: g[g["Year"]<=2023].tail(1) if (g["Year"]<=2023).any() else g.tail(1))
@@ -109,7 +107,7 @@ Z = rcs_design(x_c, knots)           # (N, m)
 m = Z.shape[1]
 X_ortho = np.column_stack([np.ones_like(x_s), x_s])   # (N, 2)
 coef_rcs = np.linalg.lstsq(X_ortho, Z, rcond=None)[0] # (2, m)
-Z_tilde = Z - X_ortho @ coef_rcs                      # RCS ⟂ [1, x]
+Z_tilde = Z - X_ortho @ coef_rcs                      # RCS perpendicular to [1, x]
 
 # Standardize deltas (store their scales)
 s_dWA = float(np.nanstd(df["dWA"].to_numpy()) or 0.1)
@@ -117,11 +115,11 @@ s_dOD = float(np.nanstd(df["dOD"].to_numpy()) or 0.1)
 df["dWA_s"] = df["dWA"] / (s_dWA + eps)
 df["dOD_s"] = df["dOD"] / (s_dOD + eps)
 
-# Time transform: standardized Δt for comparability
+# Time transform: standardized dt for comparability
 s_dt  = float(np.nanstd(df["dt_dec"].to_numpy()) or 1.0)
 dt_s  = df["dt_dec"].to_numpy() / (s_dt + eps)
 
-# Orthogonalize Δt to [1, x_s, Z_tilde] and clip (±2)
+# Orthogonalize dt to [1, x_s, Z_tilde] and clip (+/-2)
 X_base = np.column_stack([np.ones_like(x_s), x_s, Z_tilde])  # (N, 2+m)
 coef_dt = np.linalg.lstsq(X_base, dt_s, rcond=None)[0]       # ((2+m),)
 dt_s_orth = dt_s - X_base @ coef_dt
@@ -204,7 +202,7 @@ with pm.Model(coords=coords) as mdl:
           + delta_olddep  * df["dOD_s"].to_numpy()
           + tau_r[ri] * dt_s_c)
 
-    # Robust likelihood (StudentT with ν=12 for robustness)
+    # Robust likelihood (StudentT with nu=12 for robustness)
     sigma = pm.HalfNormal("sigma", 0.10)
     nu = 12.0
     pm.StudentT("Log_GDP_obs", nu=nu, mu=mu, sigma=sigma, observed=y)
@@ -230,12 +228,12 @@ if __name__ == '__main__':
         )
 
 # ============ Save ============
-    az.to_netcdf(idata, PATH_OUT)
-    print("Saved:", PATH_OUT)
+    az.to_netcdf(idata, PATH_MODEL_HIERARCHICAL)
+    print("Saved:", PATH_MODEL_HIERARCHICAL)
 
 # ============ Load & diagnostics ============
-idata = az.from_netcdf(PATH_OUT)
-print("Loaded:", PATH_OUT)
+idata = az.from_netcdf(PATH_MODEL_HIERARCHICAL)
+print("Loaded:", PATH_MODEL_HIERARCHICAL)
 
 # Helper: list only variables that exist
 def existing_vars(idata, names):
@@ -316,7 +314,7 @@ def loo_memory_safe(idata, mdl, target_max_bytes=1.0e9, pointwise=True, cast32=T
 
     used = id_th.posterior.sizes["chain"] * id_th.posterior.sizes["draw"]
     ll_da2 = next(iter(id_th.log_likelihood.data_vars.values()))
-    print(f"[loo] thin={thin} → draws {used}/{total}, obs={n_obs}, dtype={ll_da2.dtype}")
+    print(f"[loo] thin={thin} -> draws {used}/{total}, obs={n_obs}, dtype={ll_da2.dtype}")
     return loo
 
 # ---- Run memory-safe LOO (set pointwise=False if you only need aggregate fit) ----

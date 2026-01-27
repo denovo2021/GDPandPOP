@@ -215,23 +215,36 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-*.nc
+# =============================================================================
+# GDPandPOP Project-Specific Ignores
+# =============================================================================
 
+# Model outputs (regenerate from code)
+*.nc
+outputs/
+
+# Data files (place in project root, not tracked)
 BasicData/
 *.csv
 *.dat
 
-# 画像ファイルを除外
+# Figures (regenerate from code)
 *.png
+*.pdf
 
-# Pythonの一時ファイルやデータファイルを除外
+# Python cache files
 *.pkl
 *.npy
 *.json
 
-# Wordファイル（原稿などは別途管理が推奨）
+# Word files (manuscripts managed separately)
 *.docx
 
-# OS特有のファイル
+# OS-specific files
 Thumbs.db
 .DS_Store
+
+# Keep these for tracking
+!outputs/.gitkeep
+!data/README.md
+!archive/README.md

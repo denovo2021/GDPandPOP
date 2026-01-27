@@ -1,0 +1,23 @@
+# GDPandPOP Project Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core Bayesian modeling
+pymc>=5.10
+arviz>=0.17
+pytensor>=2.18
+nutpie>=0.9
+
+# Data processing
+pandas>=2.0
+numpy>=1.24
+
+# Visualization
+matplotlib>=3.7
+seaborn>=0.13
+
+# Statistical modeling
+statsmodels>=0.14
+
+# Optional: Faster sampling (JAX backend)
+# numpyro>=0.13
+# jax>=0.4
