@@ -2,14 +2,18 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+import sys
 from pathlib import Path
 import seaborn as sns
+
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_GDP_WORLD_FAN, PATH_FIG_GLOBAL_GDP_FAN
 
 sns.set_context("paper", font_scale=1.2); sns.set_style("whitegrid")
 plt.rcParams['font.family'] = 'sans-serif'
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-CSV_PATH = ROOT / "gdp_world_fan_v5_full_uncertainty.csv"
+CSV_PATH = PATH_GDP_WORLD_FAN
 
 df = pd.read_csv(CSV_PATH)
 cols = ["Median", "p95_lo", "p95_hi", "p80_lo", "p80_hi", "p50_lo", "p50_hi"]
@@ -28,7 +32,7 @@ ax.yaxis.set_major_formatter(FuncFormatter(lambda x, p: f"{x:,.0f}"))
 ax.set_xlim(2025, 2100)
 ax.legend(loc="upper left", frameon=False, fontsize=10)
 plt.tight_layout()
-SAVE_PATH = ROOT / "Figure2_Global_GDP_Fan_v5_Final.png"
+SAVE_PATH = PATH_FIG_GLOBAL_GDP_FAN
 fig.savefig(SAVE_PATH, dpi=600)
 print(f"✓ Saved {SAVE_PATH}")
 plt.show()

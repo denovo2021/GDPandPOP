@@ -1,6 +1,10 @@
 # regional_model.py
 
 # Import libraries
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -14,10 +18,12 @@ az.style.use("arviz-whitegrid")
 az.rcParams["stats.ci_prob"] = 0.95
 import pymc as pm
 
+from config import PATH_MERGED, DIR_OUTPUT, DIR_FIGURES
+
 print(f"Running on PyMC v{pm.__version__}")
 
 # Import data
-df = pd.read_csv("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv", header = 0, index_col = 0)
+df = pd.read_csv(PATH_MERGED, header = 0, index_col = 0)
 
 # Handle NaN values
 df = df.dropna(subset=["Region", "Population", "GDP"])
@@ -30,7 +36,7 @@ n_regions = len(regions)
 coords = {"Region": regions}
 
 # Load simple_model results
-idata_simple = az.from_netcdf("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model.nc")
+idata_simple = az.from_netcdf(DIR_OUTPUT / "simple_model.nc")
 
 # Summarize to extract posterior means/HDIs
 summary_simple = az.summary(
@@ -86,10 +92,10 @@ if __name__ == "__main__":
         )
    
 # Save
-az.to_netcdf(idata_regional, "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/regional_model.nc")
+az.to_netcdf(idata_regional, DIR_OUTPUT / "regional_model.nc")
 
 # Load
-idata_regional = az.from_netcdf("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/regional_model.nc")
+idata_regional = az.from_netcdf(DIR_OUTPUT / "regional_model.nc")
 
 # Posterior
 az.plot_posterior(idata_regional, var_names=["alpha_region", "beta_region", "sigma"])
@@ -136,5 +142,5 @@ plt.xlabel("Log Population")
 plt.ylabel("Log GDP")
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
-plt.savefig("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/regional_model.png", dpi=600)
+plt.savefig(DIR_FIGURES / "regional_model.png", dpi=600)
 # plt.show()

@@ -4,17 +4,20 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import DIR_OUTPUT, DIR_FIGURES
 
-# ← 直近で作った「一定ISO3＋logプール」のCSVを使います
-FAN_AGE = ROOT / "gdp_world_fan_rcs_age.csv"
+# Fan chart data (age-augmented with constant ISO3 + log-pool)
+FAN_AGE = DIR_OUTPUT / "gdp_world_fan_rcs_age.csv"
 
-# （任意）ベースラインのファンを重ねる場合は指定（無ければ None のままでOK）
-FAN_BASE_OPT = None  # 例: ROOT/"fig_global_gdp_fan.csv"
+# Optional baseline fan to overlay
+FAN_BASE_OPT = None  # e.g., DIR_OUTPUT / "fig_global_gdp_fan.csv"
 
-OUT_PNG = ROOT / "fig_global_gdp_fan_age.png"
+OUT_PNG = DIR_FIGURES / "fig_global_gdp_fan_age.png"
 
 # 1) 読み込み
 fan = pd.read_csv(FAN_AGE)

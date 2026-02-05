@@ -1,6 +1,10 @@
 # hierarchical_model.py
 
 # Import libraries
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pandas as pd
 import numpy as np
 import arviz as az
@@ -12,6 +16,8 @@ import seaborn as sns
 sns.set()
 from sklearn.metrics import r2_score
 
+from config import PATH_MERGED, DIR_OUTPUT, DIR_FIGURES
+
 # Set plotting style and confidence interval
 az.style.use("arviz-whitegrid")
 az.rcParams["stats.ci_prob"] = 0.95
@@ -19,7 +25,7 @@ az.rcParams["stats.ci_prob"] = 0.95
 print(f"Running on PyMC v{pm.__version__}")
 
 # Import data
-df = pd.read_csv("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv", header=0, index_col=0)
+df = pd.read_csv(PATH_MERGED, header=0, index_col=0)
 
 # Drop rows with NaN values in essential columns
 df = df.dropna(subset=["Region", "Country Name", "Population", "GDP"])
@@ -39,7 +45,7 @@ coords = {"Region": regions, "Country": countries}
 country_region_mapping = df[['country_code', 'region_code']].drop_duplicates().set_index('country_code').sort_index()
 
 # Make sure regional_model saved its results in regional_model.nc (or adjust path accordingly)
-idata_regional = az.from_netcdf("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/regional_model.nc")
+idata_regional = az.from_netcdf(DIR_OUTPUT / "regional_model.nc")
 
 # Summarize alpha_region, beta_region by index; these typically appear as alpha_region[0], alpha_region[1], etc.
 summary_regional = az.summary(
@@ -150,12 +156,12 @@ else:
 # ---------------------------------------------------------------------------
 az.to_netcdf(
     idata_hierarchical,
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model_linear.nc"
+    "    DIR_OUTPUT / "hierarchical_model_linear.nc""
 )
 print("InferenceData written with log_likelihood group.")
 
 # Load inference data
-idata_hierarchical = az.from_netcdf("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model.nc")
+idata_hierarchical = az.from_netcdf(DIR_OUTPUT / "hierarchical_model.nc")
 
 # Posterior plots and summary
 az.plot_posterior(idata_hierarchical, var_names=["alpha_region", "beta_region", "sigma"])
@@ -195,7 +201,7 @@ plt.xlabel("Log Population")
 plt.ylabel("Log GDP")
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
-plt.savefig("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model.png", dpi=600)
+plt.savefig(DIR_FIGURES / "hierarchical_model.png", dpi=600)
 # plt.show()
 
 # Function to plot regression line with credible interval and R-squared

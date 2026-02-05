@@ -3,6 +3,10 @@
 # ---------------------------------------------------------------------------
 # Imports
 # ---------------------------------------------------------------------------
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pandas as pd
 import numpy as np
 import arviz as az
@@ -10,6 +14,8 @@ import pymc as pm
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import r2_score
+
+from config import PATH_MERGED, PATH_MODEL_REGIONAL_QUAD, PATH_MODEL_HIERARCHICAL_QUAD, DIR_FIGURES
 
 # Set ArviZ / plotting options
 az.style.use("arviz-whitegrid")
@@ -21,11 +27,7 @@ print(f"Running on PyMC v{pm.__version__}")
 # ---------------------------------------------------------------------------
 # Data Loading & Preprocessing
 # ---------------------------------------------------------------------------
-df = pd.read_csv(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv",
-    header=0,
-    index_col=0
-)
+df = pd.read_csv(PATH_MERGED, header=0, index_col=0)
 
 df = df.dropna(subset=["Region", "Country Name", "Population", "GDP"])
 
@@ -59,9 +61,7 @@ country_region_mapping = (
 # ---------------------------------------------------------------------------
 # Load the regional_model_with_quadratic & extract region-level means/SDs
 # ---------------------------------------------------------------------------
-idata_regional_quad = az.from_netcdf(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/regional_model_with_quadratic.nc"
-)
+idata_regional_quad = az.from_netcdf(PATH_MODEL_REGIONAL_QUAD)
 
 summary_regional_quad = az.summary(
     idata_regional_quad,
@@ -220,11 +220,11 @@ with hierarchical_model_with_quadratic:
 # ---------------------------------------------------------------------------
 az.to_netcdf(
     idata_hierarchical_quad,
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model_with_quadratic.nc"
+    "PATH_MODEL_HIERARCHICAL_QUAD"
 )
 
 idata_hierarchical_quad = az.from_netcdf(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model_with_quadratic.nc"
+    "PATH_MODEL_HIERARCHICAL_QUAD"
 )
 
 # ---------------------------------------------------------------------------
@@ -306,7 +306,7 @@ plt.ylabel("Log GDP")
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 plt.savefig(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model_with_quadratic.png",
+    DIR_FIGURES / "hierarchical_model_with_quadratic.png",
     dpi=600
 )
 plt.show()

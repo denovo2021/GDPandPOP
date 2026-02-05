@@ -12,15 +12,20 @@ sns.set_context("paper", font_scale=1.2)
 sns.set_style("whitegrid")
 plt.rcParams['font.family'] = 'sans-serif'
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_MERGED_AGE, PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE,
+    PATH_POP_PREDICTIONS, DIR_OUTPUT, DIR_FIGURES
+)
 
 # Input Files
-HIST_CSV    = ROOT / "merged_age.csv"                # 過去データ (学習用)
-GDP_PRED    = ROOT / "gdp_predictions_scenarios_rcs_age.csv" # 新しいGDP予測
-POP_PRED    = ROOT / "pop_predictions_scenarios.csv" # 将来人口 (重み付け用)
+HIST_CSV = PATH_MERGED_AGE  # historical data (training)
+GDP_PRED = PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE  # new GDP predictions
+POP_PRED = PATH_POP_PREDICTIONS  # future population (for weighting)
 
-OUT_CSV     = ROOT / "u5mr_global_fan_v5.csv"
-OUT_FIG     = ROOT / "Figure3_Global_U5MR_Fan_v5.png"
+OUT_CSV = DIR_OUTPUT / "u5mr_global_fan_v5.csv"
+OUT_FIG = DIR_FIGURES / "Figure3_Global_U5MR_Fan_v5.png"
 
 def main():
     print("--- Starting U5MR Projection ---")

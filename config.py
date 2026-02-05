@@ -2,7 +2,7 @@
 # Centralized path configuration for GDPandPOP project
 # -------------------------------------------------------------------
 # All paths are defined relative to the project root.
-# Users should place CSV data files directly in the project root.
+# Data files are in MacroMetrics/, outputs go to outputs/.
 # -------------------------------------------------------------------
 
 from pathlib import Path
@@ -11,18 +11,27 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.resolve()
 
 # =====================================================================
-# Input Data Paths
+# Input Data Directories
 # =====================================================================
-# Place these CSV files in the project root for reproducibility:
-#   - merged.csv: Main GDP/Population panel data
-#   - merged_age.csv: Extended data with age structure variables
-#   - pop_predictions_scenarios.csv: UN WPP population projections
-#   - age_predictions_scenarios.csv: UN WPP age structure projections
+DIR_DATA = PROJECT_ROOT / "MacroMetrics"
+DIR_UN = DIR_DATA / "UN"
+DIR_BASIC_DATA = DIR_DATA / "BasicData"
+DIR_WB_POP_META = DIR_DATA / "API_SP.POP.TOTL_DS2_en_csv_v2_3401680"
 
-PATH_MERGED = PROJECT_ROOT / "merged.csv"
-PATH_MERGED_AGE = PROJECT_ROOT / "merged_age.csv"
-PATH_POP_PREDICTIONS = PROJECT_ROOT / "pop_predictions_scenarios.csv"
-PATH_AGE_PREDICTIONS = PROJECT_ROOT / "age_predictions_scenarios.csv"
+# =====================================================================
+# Input Data Files - Core Panel Data
+# =====================================================================
+PATH_MERGED = DIR_DATA / "merged.csv"
+PATH_MERGED_AGE = DIR_DATA / "merged_age.csv"
+PATH_MERGED_HEALTH = DIR_DATA / "merged_health.csv"
+
+# =====================================================================
+# Input Data Files - Population/Age Projections
+# =====================================================================
+PATH_POP_PREDICTIONS = DIR_DATA / "pop_predictions_scenarios.csv"
+PATH_AGE_PREDICTIONS = DIR_DATA / "age_predictions_scenarios.csv"
+PATH_WPP_XLSX = DIR_UN / "WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_FULL.xlsx"
+PATH_WB_METADATA = DIR_WB_POP_META / "Metadata_Country_API_SP.POP.TOTL_DS2_en_csv_v2_3401680.csv"
 
 # =====================================================================
 # Output Directories
@@ -33,16 +42,45 @@ DIR_TABLES = DIR_OUTPUT / "tables"
 DIR_CACHE = DIR_OUTPUT / "cache"
 
 # =====================================================================
-# Model Output Files
+# Model Output Files - NetCDF posteriors
 # =====================================================================
-# NetCDF files containing posterior samples from each model layer
 PATH_MODEL_SIMPLE = DIR_OUTPUT / "simple_model_rcs.nc"
 PATH_MODEL_REGIONAL = DIR_OUTPUT / "regional_model_rcs.nc"
 PATH_MODEL_HIERARCHICAL = DIR_OUTPUT / "hierarchical_model_rcs.nc"
+PATH_MODEL_HIERARCHICAL_AGE = DIR_OUTPUT / "hierarchical_model_with_rcs_age_v5_1_ncp_stable.nc"
+PATH_MODEL_HIERARCHICAL_QUAD = DIR_OUTPUT / "hierarchical_model_with_quadratic.nc"
+PATH_MODEL_REGIONAL_QUAD = DIR_OUTPUT / "regional_model_with_quadratic.nc"
+PATH_MODEL_SIMPLE_QUAD = DIR_OUTPUT / "simple_model_with_quadratic.nc"
 
-# Supporting files for the hierarchical model
+# Health outcome models
+PATH_MODEL_U5MR_ELASTICITY = DIR_OUTPUT / "u5mr_elasticity.nc"
+PATH_MODEL_GHED_ELASTICITY = DIR_OUTPUT / "ghed_elasticity.nc"
+
+# =====================================================================
+# Cache / Scaling Files
+# =====================================================================
 PATH_KNOTS = DIR_CACHE / "rcs_knots_hier.npy"
-PATH_SCALE_JSON = DIR_CACHE / "scale_rcs_age_v3.json"
+PATH_SCALE_JSON = DIR_CACHE / "scale_rcs_age.json"
+PATH_SCALE_JSON_V3 = DIR_CACHE / "scale_rcs_age_v3.json"
+
+# =====================================================================
+# Prediction Output Files
+# =====================================================================
+PATH_GDP_PREDICTIONS = DIR_OUTPUT / "gdp_predictions_2024.csv"
+PATH_GDP_PREDICTIONS_META = DIR_OUTPUT / "gdp_predictions_meta.csv"
+PATH_GDP_PREDICTIONS_SCENARIOS = DIR_OUTPUT / "gdp_predictions_scenarios.csv"
+PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE = DIR_OUTPUT / "gdp_predictions_scenarios_rcs_age.csv"
+
+# World aggregation fan charts
+PATH_GDP_WORLD_FAN = DIR_OUTPUT / "gdp_world_fan_v5_full_uncertainty.csv"
+PATH_GDP_WORLD_FAN_CONSTANT = DIR_OUTPUT / "gdp_world_fan_rcs_age_constant.csv"
+
+# RCS predictions
+PATH_GDP_PREDICTIONS_RCS = DIR_OUTPUT / "gdp_predictions_scenarios_rcs.csv"
+
+# U5MR predictions
+PATH_U5MR_PREDICTIONS = DIR_OUTPUT / "u5mr_predictions_scenarios_rcs.csv"
+PATH_U5MR_WORLD_FAN = DIR_OUTPUT / "u5mr_world_fan.csv"
 
 # =====================================================================
 # Figure Output Files
@@ -52,22 +90,7 @@ PATH_FIG_REGIONAL_MODEL = DIR_FIGURES / "regional_model_rcs.png"
 PATH_FIG_HIERARCHICAL_MODEL = DIR_FIGURES / "hierarchical_model_rcs.png"
 PATH_FIG_GDP_FAN = DIR_FIGURES / "fig_gdp_fan_chart.png"
 PATH_FIG_U5MR = DIR_FIGURES / "fig_u5mr_projection.png"
-
-# =====================================================================
-# Legacy Paths (for backward compatibility during transition)
-# =====================================================================
-# These map old OneDrive paths to new project-relative paths
-_LEGACY_PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-
-def migrate_path(old_path):
-    """Convert legacy OneDrive path to project-relative path."""
-    old_path = Path(old_path)
-    try:
-        rel = old_path.relative_to(_LEGACY_PROJ)
-        return PROJECT_ROOT / rel
-    except ValueError:
-        return old_path  # Not a legacy path, return as-is
-
+PATH_FIG_GLOBAL_GDP_FAN = DIR_FIGURES / "Figure2_Global_GDP_Fan_v5_Final.png"
 
 # =====================================================================
 # Utility Functions

@@ -18,13 +18,19 @@ import arviz as az
 from pathlib import Path
 
 # --------------------------------- paths --------------------------------------
-ROOT      = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-HIST_CSV  = ROOT / "merged.csv"
-WPP_XLSX  = ROOT / "BasicData/UN/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_FULL.xlsx"
-META_CSV  = ROOT / "BasicData/API_SP.POP.TOTL_DS2_en_csv_v2_3401680/Metadata_Country_API_SP.POP.TOTL_DS2_en_csv_v2_3401680.csv"
-IDATA_NC  = ROOT / "hierarchical_model_with_rcs.nc"        # posterior from the fit
-KNOTS_NPY = ROOT / "rcs_knots_hier.npy"                    # saved during fitting
-SCEN_CSV  = ROOT / "gdp_predictions_scenarios_rcs.csv"
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_MERGED, PATH_WPP_XLSX, PATH_WB_METADATA,
+    PATH_MODEL_HIERARCHICAL, PATH_KNOTS, PATH_GDP_PREDICTIONS_RCS
+)
+
+HIST_CSV = PATH_MERGED
+WPP_XLSX = PATH_WPP_XLSX
+META_CSV = PATH_WB_METADATA
+IDATA_NC = PATH_MODEL_HIERARCHICAL  # posterior from the fit
+KNOTS_NPY = PATH_KNOTS  # saved during fitting
+SCEN_CSV = PATH_GDP_PREDICTIONS_RCS
 
 # --------------------------------- helpers ------------------------------------
 def safe_pow10(logx, clip=308.0):

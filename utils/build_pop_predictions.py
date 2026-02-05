@@ -2,15 +2,18 @@
 import re
 import numpy as np
 import pandas as pd
+import sys
 from pathlib import Path
 
 # ---------------- paths ----------------
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-WPP_XLSX = PROJ / "BasicData/UN/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_FULL.xlsx"
-OUT     = PROJ / "pop_predictions_scenarios.csv"
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_WPP_XLSX, PATH_POP_PREDICTIONS, PATH_MERGED
+
+WPP_XLSX = PATH_WPP_XLSX
+OUT = PATH_POP_PREDICTIONS
 
 # (optional) use the same centering mean as training
-MERGED = PROJ / "merged.csv"
+MERGED = PATH_MERGED
 if MERGED.exists():
     df_mu = pd.read_csv(MERGED, index_col=0)
     if "Log_Population" not in df_mu.columns:

@@ -1,9 +1,15 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pandas as pd
 import numpy as np
 import arviz as az
 import pymc as pm
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+from config import PATH_MERGED, PATH_MODEL_SIMPLE_QUAD, PATH_MODEL_REGIONAL_QUAD, DIR_FIGURES
 
 az.style.use("arviz-whitegrid")
 az.rcParams["stats.ci_prob"] = 0.95
@@ -12,7 +18,7 @@ sns.set()
 print(f"Running on PyMC v{pm.__version__}")
 
 # 1) Load and preprocess data
-df = pd.read_csv("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv", header=0, index_col=0)
+df = pd.read_csv(PATH_MERGED, header=0, index_col=0)
 df = df.dropna(subset=["Region", "Population", "GDP"])  # drop rows missing essential data
 
 # Create 'region_code' category
@@ -28,9 +34,7 @@ df["Log_Population_Sq"] = df["Log_Population_c"] ** 2
 # ---------------------------------------------------------------------------
 # Load simple_model_with_quadratic & extract alpha/beta/gamma means/SDs
 # ---------------------------------------------------------------------------
-idata_simple_quad = az.from_netcdf(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model_with_quadratic.nc"
-)
+idata_simple_quad = az.from_netcdf(PATH_MODEL_SIMPLE_QUAD)
 
 summary_simple_quad = az.summary(
     idata_simple_quad,
@@ -109,11 +113,11 @@ idata_regional_quad = pm.sample(
 # ---------------------------------------------------------------------------
 az.to_netcdf(
     idata_regional_quad,
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/regional_model_with_quadratic.nc"
+    "PATH_MODEL_REGIONAL_QUAD"
 )
 
 idata_regional_quad = az.from_netcdf(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/regional_model_with_quadratic.nc"
+    "PATH_MODEL_REGIONAL_QUAD"
 )
 
 # ---------------------------------------------------------------------------
@@ -205,7 +209,7 @@ plt.ylabel("Log GDP")
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 plt.savefig(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/regional_model_with_quadratic.png", 
+    DIR_FIGURES / "regional_model_with_quadratic.png", 
     dpi=600
 )
 # plt.show()

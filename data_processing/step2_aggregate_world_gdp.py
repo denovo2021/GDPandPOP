@@ -3,15 +3,22 @@ import json
 import numpy as np
 import pandas as pd
 import arviz as az
+import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-NC_PATH     = ROOT / "hierarchical_model_with_rcs_age_v5_1_ncp_stable.nc"
-SCALE_JSON  = ROOT / "scale_rcs_age.json"
-HIST_CSV    = ROOT / "merged_age.csv"
-POP_CSV     = ROOT / "pop_predictions_scenarios.csv"
-AGE_CSV     = ROOT / "age_predictions_scenarios.csv" # From Step 1
-OUT_FAN_CSV = ROOT / "gdp_world_fan_v5_full_uncertainty.csv"
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_MODEL_HIERARCHICAL_AGE, PATH_SCALE_JSON, PATH_MERGED_AGE,
+    PATH_POP_PREDICTIONS, PATH_AGE_PREDICTIONS, PATH_GDP_WORLD_FAN
+)
+
+NC_PATH = PATH_MODEL_HIERARCHICAL_AGE
+SCALE_JSON = PATH_SCALE_JSON
+HIST_CSV = PATH_MERGED_AGE
+POP_CSV = PATH_POP_PREDICTIONS
+AGE_CSV = PATH_AGE_PREDICTIONS  # From Step 1
+OUT_FAN_CSV = PATH_GDP_WORLD_FAN
 
 THINNING = 10 
 

@@ -39,9 +39,12 @@ print(f"Running on PyMC v{pm.__version__}")
 # ---------------------------------------------------------------------------
 # 1) Load & preprocess
 # ---------------------------------------------------------------------------
-ROOT = r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP"
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_MERGED
 
-df = (pd.read_csv(f"{ROOT}/merged.csv", header=0, index_col=0)
+df = (pd.read_csv(PATH_MERGED, header=0, index_col=0)
         .dropna(subset=["Region", "Country Name", "Population", "GDP"]))
 
 # log10 variables (create if missing)

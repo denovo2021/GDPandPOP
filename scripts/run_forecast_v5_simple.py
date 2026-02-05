@@ -5,14 +5,20 @@ import arviz as az
 from pathlib import Path
 
 # --- Settings ---
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-NC_PATH     = ROOT / "hierarchical_model_with_rcs_age_v5_1_ncp_stable.nc"
-SCALE_JSON  = ROOT / "scale_rcs_age.json"
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_MODEL_HIERARCHICAL_AGE, PATH_SCALE_JSON, PATH_MERGED_AGE,
+    PATH_POP_PREDICTIONS, PATH_AGE_PREDICTIONS, PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE
+)
 
-HIST_CSV    = ROOT / "merged_age.csv"
-POP_CSV     = ROOT / "pop_predictions_scenarios.csv"
-AGE_CSV     = ROOT / "age_predictions_scenarios.csv"
-OUT_GDP_CSV = ROOT / "gdp_predictions_scenarios_rcs_age.csv"
+NC_PATH = PATH_MODEL_HIERARCHICAL_AGE
+SCALE_JSON = PATH_SCALE_JSON
+
+HIST_CSV = PATH_MERGED_AGE
+POP_CSV = PATH_POP_PREDICTIONS
+AGE_CSV = PATH_AGE_PREDICTIONS
+OUT_GDP_CSV = PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE
 
 # --- Helper: RCS Basis ---
 def rcs_design(x: np.ndarray, knots: np.ndarray) -> np.ndarray:

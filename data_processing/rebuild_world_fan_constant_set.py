@@ -1,10 +1,15 @@
 # rebuild_world_fan_constant_set.py
-import numpy as np, pandas as pd
+import numpy as np
+import pandas as pd
+import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-g = pd.read_csv(ROOT/"gdp_predictions_scenarios_rcs_age.csv",
-                usecols=["Scenario","Year","Pred_Median"])
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE, PATH_GDP_WORLD_FAN_CONSTANT
+
+g = pd.read_csv(PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE,
+                usecols=["Scenario", "Year", "Pred_Median"])
 
 # 1) find a constant set of scenarios present in ALL years (2025–2100)
 yr_min, yr_max = 2025, 2100
@@ -38,5 +43,5 @@ fan = pd.DataFrame({
 })
 
 # 3) save fan and plot (optional)
-fan.to_csv(ROOT/"gdp_world_fan_rcs_age_constant.csv", index=False)
-print("✓ world fan (constant scenarios) →", ROOT/"gdp_world_fan_rcs_age_constant.csv")
+fan.to_csv(PATH_GDP_WORLD_FAN_CONSTANT, index=False)
+print("✓ world fan (constant scenarios) →", PATH_GDP_WORLD_FAN_CONSTANT)

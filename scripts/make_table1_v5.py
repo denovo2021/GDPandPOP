@@ -2,10 +2,13 @@
 import arviz as az
 import pandas as pd
 import numpy as np
+import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-NC_PATH = ROOT / "hierarchical_model_with_rcs_age_v5_1_ncp_stable.nc"
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_MODEL_HIERARCHICAL_AGE
+
+NC_PATH = PATH_MODEL_HIERARCHICAL_AGE
 
 print(f"Loading {NC_PATH} ...")
 idata = az.from_netcdf(NC_PATH)

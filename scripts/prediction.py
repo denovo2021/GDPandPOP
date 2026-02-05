@@ -29,16 +29,24 @@ sns.set()
 az.style.use("arviz-whitegrid")
 az.rcParams["stats.ci_prob"] = 0.95
 
-# Define file paths (adjust as needed)
-historical_data_path = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv"
-future_population_path = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/BasicData/UN/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_FULL.xlsx"
-metadata_path = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/BasicData/API_SP.POP.TOTL_DS2_en_csv_v2_3401680/Metadata_Country_API_SP.POP.TOTL_DS2_en_csv_v2_3401680.csv"
+# Define file paths (use config)
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_MERGED, PATH_WPP_XLSX, PATH_WB_METADATA,
+    PATH_MODEL_HIERARCHICAL_QUAD, PATH_GDP_PREDICTIONS, PATH_GDP_PREDICTIONS_META, DIR_OUTPUT
+)
+
+historical_data_path = str(PATH_MERGED)
+future_population_path = str(PATH_WPP_XLSX)
+metadata_path = str(PATH_WB_METADATA)
 
 # IMPORTANT: Use your hierarchical model with a quadratic term
-inference_data_path = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model_with_quadratic.nc"
+inference_data_path = str(PATH_MODEL_HIERARCHICAL_QUAD)
 
-output_predictions_path = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/gdp_predictions_2024.csv"
-scaler_path = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/year_scaler.pkl"  # Path to save/load the scaler
+output_predictions_path = str(PATH_GDP_PREDICTIONS)
+scaler_path = str(DIR_OUTPUT / "year_scaler.pkl")  # Path to save/load the scaler
 
 # -----------------------------------
 # 1. Load Historical Population and GDP Data
@@ -209,10 +217,7 @@ meta_results = (
            .reset_index()
 )
 
-meta_results.to_csv(
-    "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/gdp_predictions_meta.csv",
-    index=False
-)
+meta_results.to_csv(PATH_GDP_PREDICTIONS_META, index=False)
 print("Meta‑analytic GDP predictions saved.")
 
 def show_meta_predictions(meta_df, years=(2025, 2030, 2035, 2040),  

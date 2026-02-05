@@ -25,12 +25,15 @@ from pathlib import Path
 from scipy.special import gammaln
 
 # ------------------------------- config ---------------------------------------
-PROJ    = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-ID_AGE  = PROJ / "hierarchical_model_with_rcs_age.nc"
-ID_RCS  = PROJ / "hierarchical_model_with_rcs.nc"
-MERGEDA = PROJ / "merged_age.csv"   # includes WAshare / OldDep
-MERGED  = PROJ / "merged.csv"       # for MU_GLOBAL
-KNOTS   = PROJ / "rcs_knots_hier.npy"
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import DIR_OUTPUT, PATH_MERGED_AGE, PATH_MERGED, PATH_KNOTS
+
+ID_AGE = DIR_OUTPUT / "hierarchical_model_with_rcs_age.nc"
+ID_RCS = DIR_OUTPUT / "hierarchical_model_with_rcs.nc"
+MERGEDA = PATH_MERGED_AGE  # includes WAshare / OldDep
+MERGED = PATH_MERGED  # for MU_GLOBAL
+KNOTS = PATH_KNOTS
 
 # Thinning to reduce memory (every THIN-th draw)
 THIN = 10

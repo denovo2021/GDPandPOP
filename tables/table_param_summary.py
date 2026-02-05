@@ -1,11 +1,14 @@
 import arviz as az
 import re
 import pandas as pd
+import sys
 from pathlib import Path
 
-ROOT   = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-IDATA  = ROOT / "hierarchical_model_with_rcs.nc"
-OUT_CSV= ROOT / "table_posterior_summary_rcs.csv"
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_MODEL_HIERARCHICAL, DIR_TABLES
+
+IDATA = PATH_MODEL_HIERARCHICAL
+OUT_CSV = DIR_TABLES / "table_posterior_summary_rcs.csv"
 
 idata  = az.from_netcdf(IDATA)
 poster = idata.posterior

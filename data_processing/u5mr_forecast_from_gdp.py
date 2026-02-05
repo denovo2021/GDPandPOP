@@ -4,10 +4,17 @@ import re
 import numpy as np
 import pandas as pd
 import arviz as az
+import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-WPP_XLSX = ROOT / "BasicData/UN/WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_FULL.xlsx"
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_WPP_XLSX, PATH_GDP_PREDICTIONS_RCS, PATH_WB_METADATA,
+    PATH_MODEL_U5MR_ELASTICITY, PATH_U5MR_PREDICTIONS, PATH_U5MR_WORLD_FAN
+)
+
+WPP_XLSX = PATH_WPP_XLSX
 
 # ---------- 0) helpers ----------
 def norm(s: str) -> str:
@@ -47,7 +54,7 @@ def read_wpp_population(wpp_xlsx: Path, wanted_norms: set[str]) -> pd.DataFrame:
     return pd.concat(pop_frames, ignore_index=True)
 
 # ---------- 1) load scenario GDP (future) ----------
-scen = pd.read_csv(ROOT / "gdp_predictions_scenarios_rcs.csv")  # needs: ISO3, Year, Scenario, Pred_Median
+scen = pd.read_csv(PATH_GDP_PREDICTIONS_RCS)  # needs: ISO3, Year, Scenario, Pred_Median
 for c in ["ISO3","Year","Scenario","Pred_Median"]:
     if c not in scen.columns:
         raise RuntimeError(f"Missing column in gdp_predictions_scenarios_rcs.csv: {c}")
@@ -69,9 +76,7 @@ if scen["Population"].isna().any():
 scen["GDPpc"] = scen["Pred_Median"] / scen["Population"]
 
 # ---------- 3) attach Region/Country (coalesce duplicates safely) ----------
-meta = pd.read_csv(
-    ROOT/"BasicData/API_SP.POP.TOTL_DS2_en_csv_v2_3401680/Metadata_Country_API_SP.POP.TOTL_DS2_en_csv_v2_3401680.csv"
-)
+meta = pd.read_csv(PATH_WB_METADATA)
 reg_col_candidates = [c for c in meta.columns if "Region" in c]
 if not reg_col_candidates:
     raise RuntimeError("Region column not found in metadata CSV.")
@@ -89,8 +94,7 @@ scen["Country"] = scen[country_cols].bfill(axis=1).iloc[:, 0]
 scen = scen.drop(columns=[c for c in region_cols + country_cols if c not in ["Region","Country"]])
 
 # ---------- 4) filter to regions present in the U5MR elasticity model ----------
-# NOTE: path fixed (saved earlier as ROOT/"u5mr_elasticity.nc")
-idata_u5 = az.from_netcdf(ROOT / "u5mr_elasticity.nc")
+idata_u5 = az.from_netcdf(PATH_MODEL_U5MR_ELASTICITY)
 regions = idata_u5.posterior.coords["Region"].values.tolist()
 scen = scen[scen["Region"].isin(regions)].copy()
 
@@ -129,8 +133,8 @@ for reg, g in scen.groupby("Region"):
     g2 = g.sort_values(["ISO3","Year","Scenario"])
     res.append(forecast_chunk(g2))
 u5_fore = pd.concat(res, ignore_index=True)
-u5_fore.to_csv(ROOT/"u5mr_predictions_scenarios_rcs.csv", index=False)
-print("✓ u5mr_predictions_scenarios_rcs.csv written")
+u5_fore.to_csv(PATH_U5MR_PREDICTIONS, index=False)
+print(f"✓ {PATH_U5MR_PREDICTIONS} written")
 
 # ---------- 6) world fan (population-weighted; use Population from 'scen') ----------
 # 'scen' already has Population aligned to the exact Scenario strings used in GDP file
@@ -161,8 +165,8 @@ fan = (world.groupby("Year")["U5MR_world"]
              }))
              .reset_index())
 
-fan.to_csv(ROOT/"u5mr_world_fan.csv", index=False)
-print("✓ u5mr_world_fan.csv written")
+fan.to_csv(PATH_U5MR_WORLD_FAN, index=False)
+print(f"✓ {PATH_U5MR_WORLD_FAN} written")
 # optional diagnostics
 print("[world-fan] scenarios counted:", world["Scenario"].nunique())
 print("[world-fan] years:", fan["Year"].min(), "→", fan["Year"].max())

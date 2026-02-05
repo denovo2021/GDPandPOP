@@ -1,4 +1,8 @@
 # import libraries
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -12,10 +16,12 @@ az.style.use("arviz-whitegrid")
 az.rcParams["stats.ci_prob"] = 0.95
 import pymc as pm
 
+from config import PATH_MERGED, PATH_MODEL_SIMPLE_QUAD
+
 print(f"Running on PyMC v{pm.__version__}")
 
 # import data
-df = pd.read_csv("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv", header=0, index_col=0)
+df = pd.read_csv(PATH_MERGED, header=0, index_col=0)
 
 # Handle NaN values in Population and GDP
 df = df.dropna(subset=["Region", "Population", "GDP"])
@@ -63,10 +69,10 @@ if __name__ == '__main__':
         )
 
 # save the analysis
-az.to_netcdf(idata_simple_with_quadratic, "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model_with_quadratic.nc")
+az.to_netcdf(idata_simple_with_quadratic, PATH_MODEL_SIMPLE_QUAD)
 
 # load the analysis
-idata_simple_with_quadratic = az.from_netcdf("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model_with_quadratic.nc")
+idata_simple_with_quadratic = az.from_netcdf(PATH_MODEL_SIMPLE_QUAD)
 
 # Plot the posterior distributions (now including gamma)
 az.plot_posterior(idata_simple_with_quadratic, var_names=["alpha", "beta", "gamma", "sigma"])
@@ -109,5 +115,6 @@ else:
 plt.xlabel("Log Population")
 plt.ylabel("Log GDP")
 plt.legend()
-plt.savefig("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model_with_quadratic.png", dpi=600)
+from config import DIR_FIGURES
+plt.savefig(DIR_FIGURES / "simple_model_with_quadratic.png", dpi=600)
 # plt.show()

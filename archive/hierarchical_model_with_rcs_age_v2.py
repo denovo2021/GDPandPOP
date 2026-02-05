@@ -19,12 +19,13 @@ import pymc as pm
 import arviz as az
 
 # ── paths ────────────────────────────────────────────────────────────────────
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-PATH_MERGED      = PROJ / "merged_age.csv"      # historical panel + WAshare / OldDep
-PATH_MERGED_RAW  = PROJ / "merged.csv"
-PATH_KNOTS       = PROJ / "rcs_knots_hier.npy"  # RCS knots (saved/loaded here)
-PATH_OUT         = PROJ / "hierarchical_model_with_rcs_age_v2.nc"
-PATH_SCALE_JSON  = PROJ / "scale_rcs_age.json"  # saved μ, std(ΔWA,ΔOD,Δt) for forecast
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import DIR_DATA, DIR_OUTPUT, DIR_CACHE, PATH_MERGED as PATH_MERGED_RAW, PATH_MERGED_AGE as PATH_MERGED
+
+PATH_KNOTS       = DIR_CACHE / "rcs_knots_hier.npy"  # RCS knots (saved/loaded here)
+PATH_OUT         = DIR_OUTPUT / "hierarchical_model_with_rcs_age_v2.nc"
+PATH_SCALE_JSON  = DIR_CACHE / "scale_rcs_age.json"  # saved for forecast
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 def rcs_design(x: np.ndarray, knots: np.ndarray) -> np.ndarray:

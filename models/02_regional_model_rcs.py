@@ -1,4 +1,3 @@
-# 02_regional_model_rcs.py
 # Layer 2: Partial Pooling by Region with Restricted Cubic Splines
 # ---------------------------------------------------------------------
 # Model: log(GDP) = alpha_r + beta_r * x_c + sum_j(theta_rj * rcs_j(x_c)) + epsilon
@@ -107,7 +106,9 @@ with pm.Model(coords=coords) as regional_model_with_rcs:
 
     # Region-level spline coefficients with shrinkage
     if m > 0:
-        regional_model_with_rcs.add_coord("Spline", np.arange(m), mutable=True)
+        # Fixed: Removed mutable=True as it caused TypeError and is not needed for static dimension
+        regional_model_with_rcs.add_coord("Spline", np.arange(m))
+        
         # Hierarchical shrinkage for spline coefficients
         sigma_theta = pm.HalfNormal("sigma_theta", sigma=0.1)
         theta_region = pm.Normal("theta_region", mu=0.0, sigma=sigma_theta,
@@ -148,7 +149,7 @@ if __name__ == '__main__':
     with regional_model_with_rcs:
         idata_regional_rcs = pm.sample(
             draws=4_000, tune=2_000, chains=4, cores=12,
-            target_accept=0.95, nuts_sampler="nutpie",
+            target_accept=0.95, nuts_sampler="numpyro",
             return_inferencedata=True
         )
 
@@ -203,7 +204,7 @@ for i, reg in enumerate(regions):
         y_line = a + b * x_line
     plt.plot(x_line, y_line, color=palette[i], linestyle="--", label=f"RCS: {reg}")
 
-plt.xlabel("Centered log10 population")
+plt.xlabel("Centered log10 population").
 plt.ylabel("log10 GDP")
 plt.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
 plt.tight_layout()

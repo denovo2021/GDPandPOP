@@ -37,19 +37,26 @@ import pandas as pd
 import arviz as az
 
 # ── paths ────────────────────────────────────────────────────────────────────
-ROOT      = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-IDATA_NC  = ROOT / "hierarchical_model_with_rcs_age_v2.nc"   # or _age.nc
-MERGED    = ROOT / "merged.csv"
-GSCEN     = ROOT / "gdp_predictions_scenarios_rcs.csv"
-POPCACHE  = ROOT / "pop_predictions_scenarios.csv"
-AGECSV    = ROOT / "age_predictions_scenarios.csv"
-AGEANCH   = ROOT / "age_base_anchors.csv"
-META_CSV  = ROOT / "BasicData/API_SP.POP.TOTL_DS2_en_csv_v2_3401680/Metadata_Country_API_SP.POP.TOTL_DS2_en_csv_v2_3401680.csv"
-KNOTS_NPY = ROOT / "rcs_knots_hier.npy"
-SCALE_JSON= ROOT / "scale_rcs_age.json"
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_MERGED, PATH_GDP_PREDICTIONS_RCS, PATH_POP_PREDICTIONS, PATH_AGE_PREDICTIONS,
+    PATH_WB_METADATA, PATH_KNOTS, PATH_SCALE_JSON, PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE,
+    DIR_DATA, DIR_OUTPUT
+)
 
-OUT_CNTRY = ROOT / "gdp_predictions_scenarios_rcs_age.csv"
-OUT_WORLD = ROOT / "gdp_world_fan_rcs_age.csv"
+IDATA_NC = DIR_OUTPUT / "hierarchical_model_with_rcs_age_v2.nc"  # or _age.nc
+MERGED = PATH_MERGED
+GSCEN = PATH_GDP_PREDICTIONS_RCS
+POPCACHE = PATH_POP_PREDICTIONS
+AGECSV = PATH_AGE_PREDICTIONS
+AGEANCH = DIR_DATA / "age_base_anchors.csv"
+META_CSV = PATH_WB_METADATA
+KNOTS_NPY = PATH_KNOTS
+SCALE_JSON = PATH_SCALE_JSON
+
+OUT_CNTRY = PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE
+OUT_WORLD = DIR_OUTPUT / "gdp_world_fan_rcs_age.csv"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 def norm(s: str) -> str: return re.sub(r"[^a-z0-9]", "", str(s).lower())

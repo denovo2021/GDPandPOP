@@ -3,12 +3,16 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 import arviz as az
+import sys
 from pathlib import Path
 from sklearn.metrics import mean_absolute_error
 
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_MERGED_HEALTH
+
 # ---------------- paths ----------------
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-IN_CSV = PROJ / "merged_health.csv"     # created by ingest_health_data.py
+IN_CSV = PATH_MERGED_HEALTH  # created by ingest_health_data.py
 
 # ---------------- load & prep ----------
 df = (pd.read_csv(IN_CSV)

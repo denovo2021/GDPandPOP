@@ -4,15 +4,18 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+import sys
 from pathlib import Path
 
 # ---------------- paths ----------------
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-FAN_AGE = ROOT / "gdp_world_fan_rcs_age_constISO3_logpool.csv"    # produced by prediction_rcs_age.py
-# (optional) baseline fan CSV, if you want a faint overlay for comparison
-FAN_BASE_OPT = ROOT / "fig_global_gdp_fan.csv"  # or your baseline world-fan CSV; set to None if absent
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import DIR_OUTPUT, DIR_FIGURES
 
-OUT_PNG = ROOT / "fig_global_gdp_fan_age.png"
+FAN_AGE = DIR_OUTPUT / "gdp_world_fan_rcs_age_constISO3_logpool.csv"  # produced by prediction_rcs_age.py
+# (optional) baseline fan CSV, if you want a faint overlay for comparison
+FAN_BASE_OPT = DIR_OUTPUT / "fig_global_gdp_fan.csv"  # or your baseline world-fan CSV; set to None if absent
+
+OUT_PNG = DIR_FIGURES / "fig_global_gdp_fan_age.png"
 
 # ---------------- load fan (age) ----------------
 fan = pd.read_csv(FAN_AGE)

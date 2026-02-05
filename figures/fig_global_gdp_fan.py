@@ -1,12 +1,16 @@
 # fig_global_gdp_fan.py  — robust, pivot + quantiles
-import numpy as np, pandas as pd, matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_GDP_PREDICTIONS_RCS
 
-df = pd.read_csv(ROOT/"gdp_predictions_scenarios_rcs.csv",
-                 usecols=["Scenario","Year","Pred_Median"])
+df = pd.read_csv(PATH_GDP_PREDICTIONS_RCS,
+                 usecols=["Scenario", "Year", "Pred_Median"])
 
 # 1) force numeric
 df["Year"] = pd.to_numeric(df["Year"], errors="coerce").astype("Int64")

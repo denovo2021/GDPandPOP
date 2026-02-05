@@ -4,12 +4,16 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 import arviz as az
+import sys
 from pathlib import Path
 
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_MERGED_HEALTH, PATH_MODEL_U5MR_ELASTICITY
+
 # ---- paths -------------------------------------------------------------------
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-IN_CSV  = PROJ / "merged_health.csv"          # created by ingest_health_data.py
-OUT_NC  = PROJ / "u5mr_elasticity.nc"         # THIS is what the forecast code loads
+IN_CSV = PATH_MERGED_HEALTH  # created by ingest_health_data.py
+OUT_NC = PATH_MODEL_U5MR_ELASTICITY  # THIS is what the forecast code loads
 
 # ---- load panel ---------------------------------------------------------------
 df = pd.read_csv(IN_CSV)

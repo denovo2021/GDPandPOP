@@ -223,8 +223,9 @@ __marimo__/
 *.nc
 outputs/
 
-# Data files (place in project root, not tracked)
+# Data files (raw data not tracked in git)
 BasicData/
+MacroMetrics/
 *.csv
 *.dat
 

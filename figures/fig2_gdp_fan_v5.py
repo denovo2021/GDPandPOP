@@ -3,16 +3,19 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+import sys
 from pathlib import Path
 import seaborn as sns
 
-# スタイル設定（論文用）
+# Style settings (for publication)
 sns.set_context("paper", font_scale=1.2)
 sns.set_style("whitegrid")
 plt.rcParams['font.family'] = 'sans-serif'
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-CSV_PATH = ROOT / "gdp_predictions_scenarios_rcs_age.csv" 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE
+
+CSV_PATH = PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE 
 
 # データの読み込み
 df = pd.read_csv(CSV_PATH)

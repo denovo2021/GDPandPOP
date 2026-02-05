@@ -6,14 +6,17 @@
 import re
 import numpy as np
 import pandas as pd
+import sys
 from pathlib import Path
 
 # ---- paths -------------------------------------------------------------------
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")          # project root
-DATA = PROJ / "BasicData"                                                 # data dir
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_MERGED, PATH_MERGED_HEALTH, DIR_DATA
+
+DATA = DIR_DATA / "BasicData"  # data dir
 
 # ---- base panel (must contain Country Code/Name, Year, GDP, Population) ------
-base = (pd.read_csv(PROJ/"merged.csv", index_col=0)
+base = (pd.read_csv(PATH_MERGED, index_col=0)
           .rename(columns={"Country Code": "ISO3"})
           .assign(Year=lambda d: d["Year"].astype(int)))
 
@@ -115,6 +118,6 @@ print("[check] UHC_SCI     (min, med, max, missing%):", check_stats(panel, "uhc_
 print("[check] U5MR/1000   (min, med, max, missing%):", check_stats(panel, "u5mr_per_1000"))
 
 # ------------------------------ save ------------------------------------------
-out_path = PROJ / "merged_health.csv"
+out_path = PATH_MERGED_HEALTH
 panel.to_csv(out_path, index=False)
 print("✓ merged_health.csv written →", out_path)

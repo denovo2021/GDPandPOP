@@ -13,12 +13,17 @@ import arviz as az
 from pathlib import Path
 
 # --------------------------- paths & config -----------------------------------
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-PATH_MERGED          = PROJ / "merged_age.csv"          # from add_age_to_merged.py
-PATH_MERGED_RAW      = PROJ / "merged.csv"              # for global centering mean
-PATH_AGE_ANCHORS     = PROJ / "age_base_anchors.csv"    # from build_age_covariates_from_owid.py
-PATH_KNOTS           = PROJ / "rcs_knots_hier.npy"      # reuse your main knots file
-PATH_OUT             = PROJ / "hierarchical_model_with_rcs_age.nc"
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_MERGED_AGE, PATH_MERGED, PATH_KNOTS, DIR_OUTPUT, DIR_DATA
+)
+
+PATH_MERGED_HERE = PATH_MERGED_AGE  # from add_age_to_merged.py
+PATH_MERGED_RAW = PATH_MERGED  # for global centering mean
+PATH_AGE_ANCHORS = DIR_DATA / "age_base_anchors.csv"  # from build_age_covariates_from_owid.py
+PATH_KNOTS_HERE = PATH_KNOTS  # reuse your main knots file
+PATH_OUT = DIR_OUTPUT / "hierarchical_model_with_rcs_age.nc"
 
 # RCS knots (quantiles on centered x)
 KNOT_QUANTS = [0.05, 0.35, 0.65, 0.95]

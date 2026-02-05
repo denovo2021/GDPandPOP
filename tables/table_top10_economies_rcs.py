@@ -18,9 +18,12 @@ import numpy as np
 from pathlib import Path
 
 # ------------------------------- paths -----------------------------------------
-ROOT     = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-SCEN_CSV = ROOT / "gdp_predictions_scenarios_rcs.csv"     # from prediction_rcs.py
-OUT_CSV  = ROOT / "table_top10_economies_rcs.csv"
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_GDP_PREDICTIONS_RCS, DIR_TABLES
+
+SCEN_CSV = PATH_GDP_PREDICTIONS_RCS  # from prediction_rcs.py
+OUT_CSV = DIR_TABLES / "table_top10_economies_rcs.csv"
 
 # ------------------------------ config -----------------------------------------
 YEARS   = [2035, 2040, 2050, 2060, 2070, 2080, 2090, 2100]

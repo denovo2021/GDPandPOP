@@ -1,9 +1,12 @@
 import pandas as pd
+import sys
 from pathlib import Path
 
-ROOT     = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-SCEN_CSV = ROOT / "gdp_predictions_scenarios.csv"
-OUT_CSV  = ROOT / "table_top10_economies.csv"
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_GDP_PREDICTIONS_SCENARIOS, DIR_TABLES
+
+SCEN_CSV = PATH_GDP_PREDICTIONS_SCENARIOS
+OUT_CSV = DIR_TABLES / "table_top10_economies.csv"
 
 df = pd.read_csv(SCEN_CSV,
                  usecols=["Scenario", "Year", "Country",

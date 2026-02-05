@@ -1,4 +1,8 @@
 # import libraries
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -12,10 +16,13 @@ az.style.use("arviz-whitegrid")
 az.rcParams["stats.ci_prob"] = 0.95
 import pymc as pm
 import pytensor.tensor as pt
+
+from config import PATH_MERGED, PATH_MODEL_SIMPLE, DIR_OUTPUT
+
 print(f"Running on PyMC v{pm.__version__}")
 
 # import data
-df = pd.read_csv("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv", header = 0, index_col = 0)
+df = pd.read_csv(PATH_MERGED, header = 0, index_col = 0)
 
 # Handle NaN values in Population and GDP
 df = df.dropna(subset = ["Region", "Population", "GDP"])
@@ -71,10 +78,10 @@ if __name__ == '__main__':
         return_inferencedata = True)
 
 # save the analysis
-az.to_netcdf(idata, "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model.nc")
+az.to_netcdf(idata, DIR_OUTPUT / "simple_model.nc")
 
 # load the analysis
-idata = az.from_netcdf("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model.nc")
+idata = az.from_netcdf(DIR_OUTPUT / "simple_model.nc")
 
 # Plot the posterior distributions
 az.plot_posterior(idata, var_names=["alpha", "beta", "sigma", "R2"])
@@ -109,5 +116,5 @@ else:
 plt.xlabel("Log Population")
 plt.ylabel("Log GDP")
 plt.legend()
-plt.savefig("C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/simple_model.png", dpi=600)
+plt.savefig(DIR_OUTPUT / "simple_model.png", dpi=600)
 # plt.show()

@@ -3,15 +3,18 @@
 
 import numpy as np
 import pandas as pd
+import sys
 from pathlib import Path
 
-PROJ = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import DIR_OUTPUT, PATH_POP_PREDICTIONS
 
 # -------- load forecasts (country-level) and population cache --------
-u5  = pd.read_csv(PROJ/"u5mr_predictions_scenarios_rcs.csv",
-                  usecols=["ISO3","Region","Year","Scenario","U5MR_median"])
-pop = pd.read_csv(PROJ/"pop_predictions_scenarios.csv",
-                  usecols=["ISO3","Year","Scenario","Population"])
+u5 = pd.read_csv(DIR_OUTPUT / "u5mr_predictions_scenarios_rcs.csv",
+                 usecols=["ISO3", "Region", "Year", "Scenario", "U5MR_median"])
+pop = pd.read_csv(PATH_POP_PREDICTIONS,
+                  usecols=["ISO3", "Year", "Scenario", "Population"])
 
 # numeric coercion
 for d, cols in [(u5, ["Year","U5MR_median"]), (pop, ["Year","Population"])]:
@@ -64,6 +67,6 @@ print("[info] scenario counts by Region×Year (should be ≤ number of scenarios
 print(tab.pivot(index="Region", columns="Year", values="Scenarios_count").fillna(0).astype(int).head())
 
 # save
-OUT = PROJ / "table_u5mr_regions_2035_2050_2100.csv"
+OUT = DIR_OUTPUT / "table_u5mr_regions_2035_2050_2100.csv"
 table_wide.to_csv(OUT)
 print(f"✓ {OUT}")

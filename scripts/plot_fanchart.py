@@ -13,9 +13,12 @@ from matplotlib.ticker import FuncFormatter
 from pathlib import Path
 
 # ------------------------------------------------------------------- paths -----
-ROOT     = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-SCEN_CSV = ROOT / "gdp_predictions_scenarios_rcs.csv"
-OUT_FIG  = ROOT / "fig_global_fanchart_rcs.png"
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_GDP_PREDICTIONS_RCS, DIR_FIGURES
+
+SCEN_CSV = PATH_GDP_PREDICTIONS_RCS
+OUT_FIG = DIR_FIGURES / "fig_global_fanchart_rcs.png"
 
 # ------------------------------------------------ 1. load per-scenario totals --
 df = pd.read_csv(SCEN_CSV, usecols=["Scenario", "Year", "Pred_Median"])

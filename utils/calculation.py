@@ -23,10 +23,18 @@ import pandas as pd
 import arviz as az
 
 # ---------- file paths ------------------------------------------------------
-PATH_POST_QUAD   = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model_with_quadratic.nc"
-PATH_POST_LINEAR = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/hierarchical_model.nc"
-PATH_META        = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/gdp_predictions_meta.csv"
-PATH_SCENARIO    = "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/gdp_predictions_scenarios.csv"
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import (
+    PATH_MODEL_HIERARCHICAL_QUAD, PATH_MODEL_HIERARCHICAL, PATH_GDP_PREDICTIONS_META,
+    PATH_GDP_PREDICTIONS_SCENARIOS, PATH_MERGED
+)
+
+PATH_POST_QUAD = str(PATH_MODEL_HIERARCHICAL_QUAD)
+PATH_POST_LINEAR = str(PATH_MODEL_HIERARCHICAL)
+PATH_META = str(PATH_GDP_PREDICTIONS_META)
+PATH_SCENARIO = str(PATH_GDP_PREDICTIONS_SCENARIOS)
 
 # ---------- 1. MAE on the log scale ----------------------------------------
 idata_quad = az.from_netcdf(PATH_POST_QUAD)
@@ -49,11 +57,7 @@ else:
 
     # 2) Reload the original data and rebuild centered predictors
     df_raw = (
-        pd.read_csv(
-            "C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP/merged.csv",
-            header=0,
-            index_col=0,
-        )
+        pd.read_csv(PATH_MERGED, header=0, index_col=0)
         .dropna(subset=["Region", "Country Name", "Population", "GDP"])
     )
 

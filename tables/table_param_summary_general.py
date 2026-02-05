@@ -3,11 +3,14 @@ import arviz as az
 import pandas as pd
 import numpy as np
 import re
+import sys
 from pathlib import Path
 
-ROOT  = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-IDATA = ROOT / "hierarchical_model_with_quadratic.nc"
-OUT   = ROOT / "table_posterior_summary_compact.csv"
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_MODEL_HIERARCHICAL_QUAD, DIR_TABLES
+
+IDATA = PATH_MODEL_HIERARCHICAL_QUAD
+OUT = DIR_TABLES / "table_posterior_summary_compact.csv"
 
 idata  = az.from_netcdf(IDATA)
 poster = idata.posterior

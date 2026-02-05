@@ -1,10 +1,15 @@
 # rebuild_world_fan_constant_countries_logpool.py
-import numpy as np, pandas as pd
+import numpy as np
+import pandas as pd
+import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-GCSV = ROOT/"gdp_predictions_scenarios_rcs_age.csv"  # country-level age-augmented forecasts
-OUT  = ROOT/"gdp_world_fan_rcs_age_constISO3_logpool.csv"
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE, DIR_OUTPUT
+
+GCSV = PATH_GDP_PREDICTIONS_SCENARIOS_RCS_AGE  # country-level age-augmented forecasts
+OUT = DIR_OUTPUT / "gdp_world_fan_rcs_age_constISO3_logpool.csv"
 
 # 1) load and coerce
 g = pd.read_csv(GCSV, usecols=["ISO3","Scenario","Year","Pred_Median"])

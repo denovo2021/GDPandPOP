@@ -1,12 +1,16 @@
 # step1_fix_age_data.py
 import pandas as pd
 import numpy as np
+import sys
 from pathlib import Path
 
-ROOT = Path(r"C:/Users/aaagc/OneDrive/ドキュメント/GDPandPOP")
-HIST_CSV = ROOT / "merged_age.csv"
-POP_CSV  = ROOT / "pop_predictions_scenarios.csv"
-OUT_AGE_CSV = ROOT / "age_predictions_scenarios.csv"
+# Add project root to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import PATH_MERGED_AGE, PATH_POP_PREDICTIONS, PATH_AGE_PREDICTIONS
+
+HIST_CSV = PATH_MERGED_AGE
+POP_CSV = PATH_POP_PREDICTIONS
+OUT_AGE_CSV = PATH_AGE_PREDICTIONS
 
 def main():
     print("--- Step 1: generating consistent age data ---")
