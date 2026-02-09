@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "Bash(git mv:*)",
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nRefactor: Reorganize repository for journal submission\n\n- Add centralized config.py for path management \\(replaces hardcoded OneDrive paths\\)\n- Restructure models/ with numbered prefixes \\(01_, 02_, 03_\\) reflecting layer hierarchy\n- Move hierarchical model from scripts/ to models/ as main production model\n- Create analysis/ directory for forecast and diagnostic scripts\n- Create visualization/ directory for figure generation scripts\n- Move legacy quadratic models to archive/\n- Delete 8 auto-backup files \\(*-aaagcuugggcu.py\\)\n- Add __init__.py files for Python package structure\n- Add requirements.txt with pinned dependencies\n- Add data/README.md documenting input file specifications\n- Add archive/README.md explaining deprecated versions\n- Update README.md with complete repository documentation\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(uv run python:*)",
+      "Bash(dir \"C:\\\\Users\\\\aaagc\\\\GDPandPOP\\\\MacroMetrics\")",
+      "Bash(dir /s /b \"C:\\\\Users\\\\aaagc\\\\GDPandPOP\\\\MacroMetrics\")"
+    ]
+  }
+}

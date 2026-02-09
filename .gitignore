@@ -219,24 +219,32 @@ __marimo__/
 # GDPandPOP Project-Specific Ignores
 # =============================================================================
 
-# Model outputs (regenerate from code)
-*.nc
+# Data directories (raw data not tracked in git)
+data/
+MacroMetrics/
+BasicData/
+
+# Results directory (model outputs, regenerate from code)
+results/
 outputs/
 
-# Data files (raw data not tracked in git)
-BasicData/
-MacroMetrics/
+# Generated file types
+*.nc
 *.csv
 *.dat
-
-# Figures (regenerate from code)
-*.png
-*.pdf
-
-# Python cache files
 *.pkl
 *.npy
-*.json
+
+# Figures (regenerate from code)
+figures/main/
+figures/supplementary/
+figures/diagnostics/
+*.png
+*.pdf
+*.tiff
+
+# Cache and scaling files (but keep JSON configs in repo if needed)
+# *.json
 
 # Word files (manuscripts managed separately)
 *.docx
@@ -244,8 +252,23 @@ MacroMetrics/
 # OS-specific files
 Thumbs.db
 .DS_Store
+Desktop.ini
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Reorganization scripts (temporary)
+reorganization_log_*.txt
 
 # Keep these for tracking
-!outputs/.gitkeep
-!data/README.md
+!docs/README.md
 !archive/README.md
+!.gitkeep
+
+# Keep pyproject.toml and uv.lock for reproducibility
+!pyproject.toml
+!uv.lock
