@@ -69,7 +69,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+# docs/_build/
 
 # PyBuilder
 .pybuilder/
@@ -219,9 +219,8 @@ __marimo__/
 # GDPandPOP Project-Specific Ignores
 # =============================================================================
 
-# Data directories (raw data not tracked in git)
-data/
-MacroMetrics/
+# Data directory (raw data not tracked in git)
+# MacroMetrics/
 BasicData/
 
 # Results directory (model outputs, regenerate from code)
@@ -236,9 +235,9 @@ outputs/
 *.npy
 
 # Figures (regenerate from code)
-figures/main/
-figures/supplementary/
-figures/diagnostics/
+# figures/main/
+# figures/supplementary/
+# figures/diagnostics/
 *.png
 *.pdf
 *.tiff
