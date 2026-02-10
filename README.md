@@ -14,11 +14,13 @@ This project estimates the association between population, age structure, and te
 
 ```
 GDPandPOP/
-|-- data/                    # Raw data files
+|-- MacroMetrics/            # Data files (not tracked in git)
 |   |-- merged.csv           # Historical GDP/Population panel (1960-2023)
 |   |-- merged_age.csv       # Extended with age structure variables
 |   |-- pop_predictions_scenarios.csv  # UN WPP 2024 population projections
 |   |-- age_predictions_scenarios.csv  # Age structure projections
+|   |-- API_NY.GDP.MKTP.CD_DS2_en_csv_v2_3403845/  # Raw GDP CSV
+|   |-- API_SP.POP.TOTL_DS2_en_csv_v2_3401680/     # Raw Population CSV
 |   +-- UN/                  # UN WPP source files
 |
 |-- src/                     # Source code
@@ -69,6 +71,7 @@ uv run python -m src.visualization.publication_figures
 
 ## Data Pipeline
 
+0. `src/data_processing/build_merged.py` - Build `merged.csv` from raw World Bank CSVs
 1. `src/utils/build_age_covariates_from_owid.py` - Build age covariates from OWID data
 2. `src/data_processing/add_age_to_merged.py` - Merge age data with panel
 3. `src/models/03_hierarchical_model_rcs.py` - Fit Bayesian model
@@ -99,4 +102,4 @@ See `src/visualization/visualization_utils.py` for helper functions.
 
 ## License
 
-[Add license information]
+Copyright (c) 2026 Tomoki Kawahara
